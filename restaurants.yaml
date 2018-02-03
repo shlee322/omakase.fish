@@ -1,6 +1,7 @@
 - name: 스시코마츠
   lat: 37.5251704
   lng: 127.0300412
+  address: 서울 강남구 언주로165길 7-10
   tel: '+8225151177'
   menu:
     - name: 런치오마카세
@@ -19,3 +20,36 @@
     - name: 디너
       time: 18:00/22:00
       menu: 디너오마카세
+
+- name: 스시코우지
+  lat: 37.522897
+  lng: 127.0376457
+  address: 서울 강남구 도산대로 404
+  tel: '+8225416200'
+  homepage: 'http://www.sushikoji.co.kr'
+  menu:
+    - name: 런치 카운터 스시오마카세
+      price: 110000 KRW
+    - name: 런치 카운터 사시미오마카세
+      price: 140000 KRW
+    - name: 런치 룸 스시코스
+      price: 65000 KRW
+    - name: 런치 룸 사시미코스
+      price: 90000 KRW
+    - name: 런치 룸 스시오마카세
+      price: 100000 KRW
+    - name: 디너 카운터 스시오마카세
+      price: 200000 KRW
+    - name: 디너 룸 스시코스
+      price: 130000 KRW
+    - name: 디너 룸 사시미코스
+      price: 160000 KRW
+    - name: 디너 룸 스시오마카세
+      price: 190000 KRW
+  times:
+    - name: 런치
+      time: 12:00/14:30
+      menu: '런치 카운터 스시오마카세', '런치 카운터 사시미오마카세', '런치 룸 스시코스', '런치 룸 사시미코스', '런치 룸 스시오마카세'
+    - name: 디너
+      time: 17:30/22:00
+      menu: '디너 카운터 스시오마카세', '디너 룸 스시코스', '디너 룸 사시미코스', '디너 룸 스시오마카세'
