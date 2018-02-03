@@ -1,0 +1,21 @@
+- name: 스시코마츠
+  lat: 37.5251704
+  lng: 127.0300412
+  tel: '+8225151177'
+  menu:
+    - name: 런치오마카세
+      price: 80000 KRW
+    - name: 디너오마카세
+      price: 160000 KRW
+  times:
+    - name: 런치 1부
+      time: 12:00/13:30
+      menu: 런치오마카세
+
+    - name: 런치 2부
+      time: 13:30/15:00
+      menu: 런치오마카세
+
+    - name: 디너
+      time: 18:00/22:00
+      menu: 디너오마카세

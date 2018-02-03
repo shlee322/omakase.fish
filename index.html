@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.4.5/css/mdb.min.css">
+    <style>
+    .full-size {
+        width:100%; height:calc(100vh - 4em);
+    }
+    </style>
+    <title>오마카세 파인더 :: Omakase.fish</title>
+  </head>
+  <body>
+    <nav class="mb-1 navbar navbar-expand-lg navbar-dark cyan">
+        <a class="navbar-brand" href="#">Omakase.fish</a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link waves-effect waves-light" href="javascript:alertContact()"><i class="fa fa-envelope"></i> 서비스 문의 <span class="sr-only">(current)</span></a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-9" style="padding:0;">
+                <div id="map" class="full-size" style="margin: 0px;"></div>
+            </div>
+            <div class="col-lg-3" id="restaurant_viewer">
+                <div class="card card-body full-size" v-if="restaurant">
+                    <h4 class="card-title">{{restaurant.name}}</h4>
+                    <p class="card-text">
+                        <p>&#9742; <a v-bind:href="restaurant.tel | phoneuri">{{restaurant.tel | phone}}</a></p>
+                        <hr>
+                        <h5>메뉴</h5>
+                        <p v-for="item in restaurant.menu">
+                            {{item.name}}
+                            <small style="float: right;">{{item.price|comma}}</small>
+                        </p>
+                        <hr>
+                        <h5>운영시간</h5>
+                        <p v-for="item in restaurant.times">
+                            {{item.name}}
+                            <small style="float: right;">{{item.time|iso8601}}</small>
+                        </p>
+                        <hr>
+                        <div style="overflow: auto;" v-if="instagram">
+                            <img v-bind:src="image.thumbnail_src" v-for="image in instagram" style="float: left;" width="120px">
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.4.5/js/mdb.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.10.0/js-yaml.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSF6mGv1adrYQGItXs45exHfMEXA7fxHU"></script>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/libphonenumber-js/1.0.8/libphonenumber-js.min.js"></script>
+    
+    <script>
+        var restaurant_viewer = new Vue({
+            el: "#restaurant_viewer",
+            data:{
+                restaurant: null,
+                instagram: null
+            },
+            filters: {
+                'phone': function (value) {
+                    return libphonenumber.format(value, 'National');
+                },
+                'comma': function (value) {
+                    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                },
+                'iso8601': function (value) {
+                    return value.replace('/', ' ~ ');
+                },
+                'phoneuri': function (value) {
+                    return 'tel:' + value;
+                }
+            }
+        });
+        
+        // color: #eee;
+
+        function viewRestaurantInfo(obj) {
+            restaurant_viewer.restaurant = obj;
+            restaurant_viewer.instagram = null;
+            $.get('https://www.instagram.com/explore/tags/' + encodeURI(obj.name) + '/?__a=1', function (instagram) {
+                if(restaurant_viewer.restaurant != obj) return;
+
+                var results = [];
+                var hashtag = instagram.graphql.hashtag;
+                for(var i=0; i<hashtag.edge_hashtag_to_top_posts.edges.length; i++) results.push(hashtag.edge_hashtag_to_top_posts.edges[i].node);
+                for(var i=0; i<hashtag.edge_hashtag_to_media.edges.length; i++) results.push(hashtag.edge_hashtag_to_media.edges[i].node);
+
+                results = results.slice(0, 9); // TODO 우선 9개만 사용. 나중에 UI를 어떻게 하던가 해야지 후..
+
+                restaurant_viewer.instagram = results;
+            });
+        }
+    </script>
+    
+    <script>
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: {lat: 37.532600, lng: 127.024612}
+        });
+
+        $.get('./restaurants.yaml', function( data ) {
+            var restaurants = jsyaml.safeLoad(data);
+            
+            for(var i=0; i<restaurants.length; i++) {
+                var restaurant = restaurants[i];
+                
+                var marker = new google.maps.Marker({
+                    position: {lat: restaurant.lat, lng: restaurant.lng},
+                    title: restaurant.name,
+                    label: restaurant.name,
+                    map: map
+                });
+                marker.addListener('click', function() {
+                    viewRestaurantInfo(restaurant);
+                });
+            }
+            viewRestaurantInfo(restaurants[0]);
+        });
+    </script>
+
+    <script>
+    function alertContact() {
+        alert('본 서비스는 오마카세 정보 공유를 위해 비영리로 운영되는 서비스입니다.\n업체 추가, 정보 수정, 서비스 개선 사항 등의 문의는 언제든지 shlee322@gmail.com으로 연락 부탁드립니다.');
+    }
+    </script>
+  </body>
+</html>
